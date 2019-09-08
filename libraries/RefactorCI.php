@@ -21,11 +21,11 @@ class RefactorCI {
     $this->primaryKey = $params['primary_key'] ?? 'id';
   }
   /**
-   * [refactorObject description]
+   * [run description]
    * @param array  $object   [description]
    * @param string $ruleName [description]
    */
-  function refactorObject(array &$object, string $ruleName):void {
+  function run(array &$object, string $ruleName):void {
     $rule = $this->ci->config->item("refactor_$ruleName");
     if ($rule == null) return; // No need to go further as rule doesn't exist.
     // Unset
@@ -67,13 +67,13 @@ class RefactorCI {
           }
           $object[$field][] = $query->result_array()[0];
           // Recursion
-          if (isset($data['refactor'])) $this->refactorObject($object[$field][count($object[$field]) - 1], $data['refactor']);
+          if (isset($data['refactor'])) $this->run($object[$field][count($object[$field]) - 1], $data['refactor']);
         }
       }
     }
   }
   /**
-   * [unset_values u]
+   * [unset_values description]
    * @param array  $object Object to Refactor.
    * @param array  $rule   Rule data, containing keys to unset in  the given
    *                       associative array.
