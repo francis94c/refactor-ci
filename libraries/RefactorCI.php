@@ -20,32 +20,28 @@ class RefactorCI {
   public function init(array $params):void {
     $this->primaryKey = $params['primary_key'] ?? 'id';
   }
-  function run(array &$object, string $ruleName):void {
+  /**
+   * [refactorObject description]
+   * @param array  $object   [description]
+   * @param string $ruleName [description]
+   */
+  function refactorObject(array &$object, string $ruleName):void {
     $rule = $this->ci->config->item("refactor_$ruleName");
     if ($rule == null) return; // No need to go further as rule doesn't exist.
-
     // Unset
     if (isset($rule['unset'])) {
-      foreach($rule['unset'] as $key) {
-        unset($object[$key]);
-      }
+      $this->unset_values($object, $rule);
     }
-
     // Replace
     if (isset($rule['replace'])) {
-      foreach ($rule['replace'] as $oldKey => $newKey) {
-        $object[$newKey] = $object[$oldKey];
-        unset($object[$oldKey]);
-      }
+      $this->replace_fields($object, $rule);
     }
-
     // Bools
     if (isset($rule['bools'])) {
       foreach($rule['bools'] as $boolKey) {
         $object[$boolKey] = $object[$boolKey] == 1 || $object[$boolKey] == 'true';
       }
     }
-
     // Objects
     if (isset($rule['objects'])) {
       foreach($rule['objects'] as $field => $data) {
@@ -71,9 +67,31 @@ class RefactorCI {
           }
           $object[$field][] = $query->result_array()[0];
           // Recursion
-          if (isset($data['refactor'])) $this->run($object[$field][count($object[$field]) - 1], $data['refactor']);
+          if (isset($data['refactor'])) $this->refactorObject($object[$field][count($object[$field]) - 1], $data['refactor']);
         }
       }
+    }
+  }
+  /**
+   * [unset_values u]
+   * @param array  $object Object to Refactor.
+   * @param array  $rule   Rule data, containing keys to unset in  the given
+   *                       associative array.
+   */
+  private function unset_values(array &$object, &$rule):void {
+    foreach($rule['unset'] as $key) {
+      unset($object[$key]);
+    }
+  }
+  /**
+   * [replace_fields description]
+   * @param array  $object [description]
+   * @param [type] $rule   [description]
+   */
+  private function replace_fields(array &$object, &$rule):void {
+    foreach ($rule['replace'] as $oldKey => $newKey) {
+      $object[$newKey] = $object[$oldKey];
+      unset($object[$oldKey]);
     }
   }
 }
