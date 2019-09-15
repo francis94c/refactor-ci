@@ -42,6 +42,10 @@ class RefactorCI {
         $object[$boolKey] = $object[$boolKey] == 1 || $object[$boolKey] == 'true';
       }
     }
+    // Cast
+    if (isset($rule['cast']))  {
+      $this->cast_fields($object, $rule);
+    }
     // Objects
     if (isset($rule['objects'])) {
       foreach($rule['objects'] as $field => $data) {
@@ -92,6 +96,23 @@ class RefactorCI {
     foreach ($rule['replace'] as $oldKey => $newKey) {
       $object[$newKey] = $object[$oldKey];
       unset($object[$oldKey]);
+    }
+  }
+  /**
+   * [cast_fields description]
+   * @param array  $object [description]
+   * @param [type] $rule   [description]
+   */
+  private function cast_fields(array &$object, &$rule):void {
+    foreach ($rule['cast'] as $key => $type) {
+      switch ($type) {
+        case 'int':
+          $object[$key] = (int) $object[$key];
+          break;
+        case 'string':
+          $object[$key] = (string) $object[$key];
+          break;
+      }
     }
   }
 }
