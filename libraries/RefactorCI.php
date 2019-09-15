@@ -22,11 +22,19 @@ class RefactorCI {
   }
   /**
    * [run description]
-   * @param array  $object   [description]
-   * @param string $ruleName [description]
+   * @param array|string  $object   [description]
+   * @param string        $ruleName [description]
    */
-  function run(array &$object, string $ruleName):void {
-    $rule = $this->ci->config->item("refactor_$ruleName");
+  function run(array &$object, $ruleName):void {
+    // Reolve Rules.
+    if (is_scalar($ruleName)) {
+      $rule = $this->ci->config->item("refactor_$ruleName");
+    } else {
+      // Rule was probablt passed in as an array (associative) and we support
+      // that.
+      $rule = is_array($ruleName) ? $ruleName : null;
+    }
+
     if ($rule == null) return; // No need to go further as rule doesn't exist.
     // Unset
     if (isset($rule['unset'])) {
