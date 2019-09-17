@@ -36,6 +36,15 @@ class RefactorCI {
     }
 
     if ($rule == null) return; // No need to go further as rule doesn't exist.
+    // Keep
+    if (isset($rule['keep'])) {
+      $keys = array_keys($object);
+      for ($x = 0; $x < count($object); $x++) {
+        if (!in_array($keys[$X], $rule['keep'])) {
+          unset($object[$keys[$x]]);
+        }
+      }
+    }
     // Unset
     if (isset($rule['unset'])) {
       $this->unset_values($object, $rule);
@@ -54,9 +63,9 @@ class RefactorCI {
     if (isset($rule['cast']))  {
       $this->cast_fields($object, $rule);
     }
-    // Objects
-    if (isset($rule['objects'])) {
-      foreach($rule['objects'] as $field => $data) {
+    // Object Array
+    if (isset($rule['object_array'])) {
+      foreach($rule['object_array'] as $field => $data) {
         $ids = json_decode($object[$field]);
         if (is_scalar($ids)) {
           // JSON Array wasn't supplied. Let's treat it as a scaler ID.
@@ -71,6 +80,7 @@ class RefactorCI {
           continue;
         }
         $object[$field] = [];
+        if ($ids == null) return;
         foreach($ids as $id) {
           $this->ci->db->where($this->primaryKey, $id);
           $query = $this->ci->db->get($data['table']);
