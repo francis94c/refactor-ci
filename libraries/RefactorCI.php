@@ -66,12 +66,6 @@ class RefactorCI {
     // Inflate
     if (isset($rule['inflate'])) {
       foreach($rule['inflate'] as $field => $data) {
-        
-      }
-    }
-    // Inflate Array
-    if (isset($rule['inflate_array'])) {
-      foreach($rule['inflate_array'] as $field => $data) {
         $ids = json_decode($object[$field]);
         if (is_scalar($ids)) {
           // JSON Array wasn't supplied. Let's treat it as a scaler ID.
