@@ -1,0 +1,26 @@
+<phpunit bootstrap="travis-splint-0.0.8/index.php"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	processIsolation="false"
+	stopOnFailure="false"
+	verbose="true"
+	testdox="true">
+	<testsuites>
+		<testsuite name="RefactorCI Test Suite">
+			<file>travis-splint-0.0.8/application/splints/francis94c/refactor-ci/phpunit/RefactorTest.php</file>
+		</testsuite>
+	</testsuites>
+	<logging>
+		<log type="coverage-clover" target="./build/logs/clover.xml"/>
+	</logging>
+	<filter>
+		<whitelist addUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">./travis-splint-0.0.8/application/splints/francis94c/refactor-ci</directory>
+			<exclude>
+				<file>travis-splint-0.0.8/application/splints/francis94c/refactor-ci/phpunit/RefactorTest.php</file>
+			</exclude>
+		</whitelist>
+  </filter>
+</phpunit>
