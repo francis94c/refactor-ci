@@ -32,7 +32,7 @@ This means you can create config rules also in the application config file, But 
 
 The library when loaded, attempts to load the `refactor.php` config file. No error will be thrown if this file doesn't exist.
 
-Below is a sample `refactor.php` file wit sample rules.
+Below is a sample `refactor.php` file with rules defined.
 
 ```php
 defined('BASEPATH') OR exit('No direct script access allowed');
