@@ -29,4 +29,28 @@ class RefactorTest extends TestCase {
     self::$ci->load->package(self::PACKAGE);
     $this->assertTrue(isset(self::$ci->refactor));
   }
+  /**
+   * [testDirectUnsetRule description]
+   *
+   * @depends testLoadPackage
+   */
+  public function testDirectUnsetRule():void {
+    $payload = [
+      'name'     => 'collins',
+      'pc_brand' => 'HP',
+      'phone'    => '+2349086756453',
+      'school'   => 'Delloite',
+      'company'  => 'Google'
+    ];
+    $rule = [
+      'unset' => [
+        'school',
+        'phone'
+      ]
+    ];
+    self::$ci->refactor->run($payload, $rule);
+    $this->assertFalse(isset($payload['school']));
+    $this->assertFalse(isset($payload['phone']));
+    $this->assertTrue(isset($payload['company']));
+  }
 }
