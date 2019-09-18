@@ -27,6 +27,6 @@ class RefactorTest extends TestCase {
    */
   public function testLoadPackage():void {
     self::$ci->load->package(self::PACKAGE);
-    $this->asserTrue(isset($ci->refactor));
+    $this->assertTrue(isset($ci->refactor));
   }
 }
