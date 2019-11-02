@@ -1,31 +1,84 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class RefactorCI {
+class RefactorCI
+{
 
   /**
    * [private description]
    * @var [type]
    */
   private $ci;
-
+  /**
+   * [private description]
+   * @var [type]
+   */
   private $primaryKey;
 
-  function __construct($params=null) {
+  function __construct($params=null)
+  {
     $this->ci =& get_instance();
     $this->ci->load->config("refactor", false, true);
+    $this->ci->load->splint('francis94c/jsonp', '+JSONP', null, 'jsonp');
+    require_once('RefactorPayload.php');
     $this->init($params == null ? [] : $params);
   }
-
-  public function init(array $params):void {
+  /**
+   * [init description]
+   * @date  2019-11-02
+   * @param array      $params [description]
+   */
+  public function init(array $params):void
+  {
     $this->primaryKey = $params['primary_key'] ?? 'id';
+  }
+  /**
+   * [load description]
+   * @date   2019-11-02
+   * @return RefactorCI [description]
+   */
+  public function load($class):RefactorCI
+  {
+    include APPPATH.'libraries/refactor/'.$class.'.php';
+    return $this;
+  }
+  /**
+   * [payload description]
+   * @date   2019-11-02
+   * @param  string     $class  [description]
+   * @param  [type]     $object [description]
+   * @return [type]             [description]
+   */
+  public function payload(string $class, $object)
+  {
+    return (new $class($object))->toArray();
+  }
+  /**
+   * [array description]
+   * @date   2019-11-02
+   * @param  string     $class [description]
+   * @param  array      $array [description]
+   * @return array             [description]
+   */
+  public function array(string $class, array $array):array
+  {
+    $refactor = new $class();
+    $buff;
+    for ($x = 0; $x < count($array); $x++) {
+      $refactor->switchPayload($array[$x]);
+      $buff = $refactor->toArray();
+      if ($buff != null) $array[$x] = $buff;
+    }
+    return $array;
   }
   /**
    * [run description]
    * @param array|string  $object   [description]
    * @param string        $ruleName [description]
    */
-  function run(array &$object, $ruleName):void {
+  function run(array &$object, $ruleName):void
+  {
+    if ($object == null) return;
     // Reolve Rules.
     if (is_scalar($ruleName)) {
       $rule = $this->ci->config->item("refactor_$ruleName");
@@ -66,7 +119,7 @@ class RefactorCI {
     // Inflate
     if (isset($rule['inflate'])) {
       foreach($rule['inflate'] as $field => $data) {
-        $ids = json_decode($object[$field]);
+        $ids = json_decode($object[$field], true);
         if (is_scalar($ids)) {
           // JSON Array wasn't supplied. Let's treat it as a scaler ID.
           $this->ci->db->where($this->primaryKey, $ids);
@@ -78,6 +131,24 @@ class RefactorCI {
           $object[$field] = $query->result_array()[0];
           if (isset($data['refactor'])) $this->run($object[$field], $data['refactor']);
           continue;
+        }
+        if (isset($data['path'])) {
+          if ($ids == null) return;
+          $object[$field] = $ids;
+          $this->ci->jsonp->parse($object[$field]);
+          if (is_array($object[$field])) {
+            $refs = $this->ci->jsonp->get_reference($data['path']);
+            for ($x = 0; $x < count($refs); $x++) {
+              $refs[$x] = $this->inflate_value($data['table'], $refs[$x]);
+              // Recursion
+              if (isset($data['refactor'])) $this->run($refs[$x], $data['refactor']);
+            }
+          } else {
+            $this->ci->jsonp->set($data['path'], $this->inflate_value($data['table'], $ids));
+            // Recursion
+            if (isset($data['refactor'])) $this->run($this->ci->jsonp->get_reference($data['path']), $data['refactor']);
+          }
+          return;
         }
         $object[$field] = [];
         if ($ids == null) return;
@@ -93,6 +164,12 @@ class RefactorCI {
         }
       }
     }
+  }
+  private function inflate_value(string $table, $value)
+  {
+    $this->ci->db->where($this->primaryKey, $value);
+    $query = $this->ci->db->get($table);
+    return $query->num_rows() > 0 ? $query->result_array()[0] : null;
   }
   /**
    * [unset_values description]
@@ -110,7 +187,8 @@ class RefactorCI {
    * @param array  $object [description]
    * @param [type] $rule   [description]
    */
-  private function replace_fields(array &$object, &$rule):void {
+  private function replace_fields(array &$object, &$rule):void
+  {
     foreach ($rule['replace'] as $oldKey => $newKey) {
       $object[$newKey] = $object[$oldKey];
       unset($object[$oldKey]);
@@ -121,7 +199,8 @@ class RefactorCI {
    * @param array  $object [description]
    * @param [type] $rule   [description]
    */
-  private function cast_fields(array &$object, &$rule):void {
+  private function cast_fields(array &$object, &$rule):void
+  {
     foreach ($rule['cast'] as $key => $type) {
       switch ($type) {
         case 'int':
