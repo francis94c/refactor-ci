@@ -17,5 +17,8 @@
     "libraries" : [
       ["RefactorCI", "refactor"]
     ]
-  }
+  },
+  "depends-on": [
+    "francis94c/jsonp"
+  ]
 }
