@@ -54,6 +54,15 @@ class RefactorPayload
     return $this->payload[$key];
   }
   /**
+   * [__toString description]
+   * @date   2019-11-03
+   * @return string     [description]
+   */
+  public function __toString():string
+  {
+    return json_encode($this->payload);
+  }
+  /**
    * [setPayload description]
    * @date  2019-11-02
    * @param [type]     $payload [description]
