@@ -63,6 +63,17 @@ class RefactorPayload
     return json_encode($this->payload);
   }
   /**
+   * [__debugInfo description]
+   * @date   2019-11-03
+   * @return [type]     [description]
+   */
+  public function __debugInfo():array
+  {
+    return [
+      'payload' => $this->payload
+    ];
+  }
+  /**
    * [setPayload description]
    * @date  2019-11-02
    * @param [type]     $payload [description]
