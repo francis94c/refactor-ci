@@ -60,6 +60,9 @@ class RefactorPayload
    */
   public function __toString():string
   {
+    $buff = $refactor->toArray();
+    if ($buff != null) return json_encode($buff);
+
     return json_encode($this->payload);
   }
   /**
