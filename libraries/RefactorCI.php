@@ -39,7 +39,7 @@ class RefactorCI
    */
   public function load($class):RefactorCI
   {
-    include APPPATH.'libraries/refactor/'.$class.'.php';
+    require_once(APPPATH.'libraries/refactor/'.$class.'.php');
     return $this;
   }
   /**
