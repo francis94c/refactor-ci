@@ -14,14 +14,31 @@ class RefactorCI
    * @var [type]
    */
   private $primaryKey;
+  /**
+   * [public description]
+   * @var [type]
+   */
+  public const PACKAGE = 'francis94c/refactor-ci';
 
   function __construct($params=null)
   {
     $this->ci =& get_instance();
     $this->ci->load->config("refactor", false, true);
     $this->ci->load->splint('francis94c/jsonp', '+JSONP', null, 'jsonp');
-    require_once('RefactorPayload.php');
     $this->init($params == null ? [] : $params);
+
+    spl_autoload_register(function($name) {
+      if ($name == 'RefactorPayload') {
+        require(APPPATH . 'splints/' . self::PACKAGE . '/libraries/RefactorPayload.php');
+        return;
+      }
+
+      $oldPath = set_include_path(APPPATH . 'libraries/refactor/');
+
+      require("$name.php");
+
+      set_include_path($oldPath);
+    });
   }
   /**
    * [init description]
