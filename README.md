@@ -143,3 +143,4 @@ If the payload is an array (multiple user data), process it as below.
 ```php
 $data = $this->refactor->array(Email::class, $data);
 ```
+With this, you can directly modify payloads as you wish, programmatically.
