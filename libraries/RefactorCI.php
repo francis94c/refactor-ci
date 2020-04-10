@@ -3,28 +3,35 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class RefactorCI
 {
-
   /**
    * [private description]
    * @var [type]
    */
   private $ci;
+
   /**
    * [private description]
    * @var [type]
    */
   private $primaryKey;
+
   /**
    * [public description]
    * @var [type]
    */
   public const PACKAGE = 'francis94c/refactor-ci';
 
-  function __construct($params=null)
+  /**
+   * [__construct description]
+   * @date  2020-04-10
+   * @param [type]     $params [description]
+   */
+  public function __construct($params=null)
   {
     $this->ci =& get_instance();
     $this->ci->load->config("refactor", false, true);
     $this->ci->load->splint('francis94c/jsonp', '+JSONP', null, 'jsonp');
+    
     $this->init($params == null ? [] : $params);
 
     spl_autoload_register(function($name) {
@@ -33,11 +40,12 @@ class RefactorCI
         return;
       }
 
-      $oldPath = set_include_path(APPPATH . 'libraries/refactor/');
+      if (file_exists(APPPATH . "payloads/$name.php")) {
+        require(APPPATH . "payloads/$name.php");
+        return;
+      }
 
-      require("$name.php");
-
-      set_include_path($oldPath);
+      require(APPPATH . "libraries/refactor/$name.php"); // @deprecated
     });
   }
   /**
