@@ -31,7 +31,7 @@ class RefactorCI
     $this->ci =& get_instance();
     $this->ci->load->config("refactor", false, true);
     $this->ci->load->splint('francis94c/jsonp', '+JSONP', null, 'jsonp');
-    
+
     $this->init($params == null ? [] : $params);
 
     spl_autoload_register(function($name) {
@@ -45,7 +45,9 @@ class RefactorCI
         return;
       }
 
-      require(APPPATH . "libraries/refactor/$name.php"); // @deprecated
+      if (file_exists(APPPATH . "libraries/refactor/$name.php")) {
+        require(APPPATH . "libraries/refactor/$name.php"); // @deprecated
+      }      
     });
   }
   /**
